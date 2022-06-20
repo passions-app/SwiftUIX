@@ -9,6 +9,7 @@ import SwiftUI
 
 protocol _opaque_UIHostingScrollView: UIScrollView {
     func scrollTo(_ edge: Edge)
+    func scrollTo(_ contentOffset: CGPoint, animated: Bool)
 }
 
 open class UIHostingScrollView<Content: View>: UIScrollView, _opaque_UIHostingScrollView, UIScrollViewDelegate {
@@ -278,6 +279,11 @@ extension UIHostingScrollView {
 // MARK: - Conformances -
 
 extension UIHostingScrollView {
+
+    public func scrollTo(_ contentOffset: CGPoint, animated: Bool) {
+        setContentOffset(contentOffset, animated: animated)
+    }
+
     public func scrollTo(_ edge: Edge) {
         let animated = _areAnimationsDisabledGlobally ? false : true
         
