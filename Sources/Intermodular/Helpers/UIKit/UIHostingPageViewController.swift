@@ -150,9 +150,17 @@ class UIHostingPageViewController<Page: View>: UIPageViewController, _opaque_UIH
             }
         }
     }
+
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        internalPaginationState.isDragging = true
+    }
+
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        internalPaginationState.isDragging = false
+    }
     
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        guard !_isSwiftUIRuntimeUpdateActive else {
+        guard !_isSwiftUIRuntimeUpdateActive, internalPaginationState.isDragging else {
             return
         }
         
