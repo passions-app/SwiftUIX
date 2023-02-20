@@ -42,7 +42,7 @@ public struct EvaluateBooleanView<Content: View>: View {
     }
 }
 
-// MARK: - Helpers -
+// MARK: - Helpers
 
 extension Bool {
     @inlinable
@@ -52,7 +52,7 @@ extension Bool {
     
     @inlinable
     public func ifFalse<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        Group {
+        PassthroughView {
             if self {
                 EmptyView()
             } else {

@@ -2,8 +2,6 @@
 // Copyright (c) Vatsal Manot
 //
 
-#if !swift(>=5.3) // workaround for Xcode 12 beta 6
-
 import AuthenticationServices
 import Swift
 import SwiftUI
@@ -26,7 +24,7 @@ public enum AuthorizationAppleIDButtonStyle: Equatable {
     case white
 }
 
-// MARK: - Helpers -
+// MARK: - Helpers
 
 #if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
@@ -55,7 +53,5 @@ extension WKInterfaceAuthorizationAppleIDButton.Style {
         }
     }
 }
-
-#endif
 
 #endif

@@ -19,7 +19,7 @@ public protocol CollectionViewLayout {
     #endif
 }
 
-// MARK: - API -
+// MARK: - API
 
 extension View {
     public func collectionViewLayout(_ layout: CollectionViewLayout) -> some View {
@@ -27,7 +27,7 @@ extension View {
     }
 }
 
-// MARK: - Auxiliary Implementation -
+// MARK: - Auxiliary
 
 private struct _CollectionViewLayoutEnvironmentKey: EnvironmentKey {
     static let defaultValue: CollectionViewLayout = FlowCollectionViewLayout()
@@ -43,7 +43,7 @@ extension EnvironmentValues {
     }
 }
 
-// MARK: - Conformances -
+// MARK: - Conformances
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
@@ -80,7 +80,7 @@ public struct FlowCollectionViewLayout: Hashable, CollectionViewLayout {
         hasher.combine(sectionInsets?.trailing)
     }
 
-    class _UICollectionViewFlowLayout: UICollectionViewFlowLayout {
+    class _AppKitOrUIKitCollectionViewFlowLayout: AppKitOrUIKitCollectionViewFlowLayout {
         override func invalidationContext(forBoundsChange newBounds: CGRect) -> UICollectionViewLayoutInvalidationContext {
             let context = super.invalidationContext(forBoundsChange: newBounds) as! UICollectionViewFlowLayoutInvalidationContext
             

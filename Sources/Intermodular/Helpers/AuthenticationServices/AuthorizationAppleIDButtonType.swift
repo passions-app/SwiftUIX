@@ -2,8 +2,6 @@
 // Copyright (c) Vatsal Manot
 //
 
-#if !swift(>=5.3) // workaround for Xcode 12 beta 6
-
 import AuthenticationServices
 import Swift
 import SwiftUI
@@ -20,7 +18,7 @@ public enum AuthorizationAppleIDButtonType: Equatable {
     case `default`
 }
 
-// MARK: - Helpers -
+// MARK: - Helpers
 
 #if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
@@ -43,7 +41,5 @@ extension ASAuthorizationAppleIDButton.ButtonType {
         }
     }
 }
-
-#endif
 
 #endif

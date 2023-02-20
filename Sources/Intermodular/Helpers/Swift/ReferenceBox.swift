@@ -39,6 +39,10 @@ final class ReferenceBox<T> {
     }
 }
 
+extension ReferenceBox: @unchecked Sendable where T: Sendable {
+    
+}
+
 @propertyWrapper
 @usableFromInline
 final class WeakReferenceBox<T: AnyObject> {
@@ -65,6 +69,9 @@ final class WeakReferenceBox<T: AnyObject> {
     }
 }
 
+#if canImport(Combine)
+import Combine
+
 @usableFromInline
 final class ObservableReferenceBox<T>: ObservableObject {
     @usableFromInline
@@ -76,6 +83,7 @@ final class ObservableReferenceBox<T>: ObservableObject {
     }
 }
 
+@propertyWrapper
 @usableFromInline
 final class ObservableWeakReferenceBox<T: AnyObject>: ObservableObject {
     @usableFromInline
@@ -86,7 +94,17 @@ final class ObservableWeakReferenceBox<T: AnyObject>: ObservableObject {
     }
     
     @usableFromInline
+    var wrappedValue: T? {
+        get {
+            value
+        } set {
+            value = newValue
+        }
+    }
+    
+    @usableFromInline
     init(_ value: T?) {
         self.value = value
     }
 }
+#endif

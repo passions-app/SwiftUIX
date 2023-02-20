@@ -30,7 +30,7 @@ public struct TextView<Label: View>: View {
 		var tintColor: AppKitOrUIKitColor?
         var kerning: CGFloat?
         var linkForegroundColor: AppKitOrUIKitColor?
-        var textContainerInset: AppKitOrUIKitInsets = .zero
+        var textContainerInset: AppKitOrUIKitInsets = .init(EdgeInsets.zero)
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         var textContentType: UITextContentType?
         #endif
@@ -46,7 +46,7 @@ public struct TextView<Label: View>: View {
         }
     }
     
-    @Environment(\.preferredMaximumLayoutWidth) var preferredMaximumLayoutWidth
+    @Environment(\.preferredMaximumLayoutWidth) private var preferredMaximumLayoutWidth
     
     private var label: Label
     private var text: Binding<String>?
@@ -54,7 +54,7 @@ public struct TextView<Label: View>: View {
     private var configuration: _Configuration
     
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    private var customAppKitOrUIKitClass: UITextView.Type = UIHostingTextView<Label>.self
+    private var customAppKitOrUIKitClass: UITextView.Type = _CocoaTextView<Label>.self
     #endif
     
     private var isEmpty: Bool {
@@ -87,7 +87,7 @@ public struct TextView<Label: View>: View {
     }
 }
 
-// MARK: - Implementation -
+// MARK: - Implementation
 
 fileprivate struct _TextView<Label: View> {
     typealias Configuration = TextView<Label>._Configuration
@@ -111,7 +111,7 @@ extension _TextView: UIViewRepresentable {
     func makeUIView(context: Context) -> UIViewType {
         let uiView: UIViewType
         
-        if let customAppKitOrUIKitClass = customAppKitOrUIKitClass as? UIHostingTextView<Label>.Type {
+        if let customAppKitOrUIKitClass = customAppKitOrUIKitClass as? _CocoaTextView<Label>.Type {
             uiView = customAppKitOrUIKitClass.init(configuration: configuration)
         } else {
             uiView = customAppKitOrUIKitClass.init()
@@ -133,7 +133,7 @@ extension _TextView: UIViewRepresentable {
     
     func updateUIView(_ uiView: UIViewType, context: Context) {
         _withoutAppKitOrUIKitAnimation(context.transaction.animation == nil) {
-            if let uiView = uiView as? UIHostingTextView<Label> {
+            if let uiView = uiView as? _CocoaTextView<Label> {
                 uiView._isSwiftUIRuntimeUpdateActive = true
                 
                 defer {
@@ -165,12 +165,12 @@ extension _TextView: UIViewRepresentable {
                     : context.environment.isEnabled && configuration.isEditable
             }
             #endif
-            uiView.isScrollEnabled = context.environment.isScrollEnabled
+            uiView.isScrollEnabled = context.environment._isScrollEnabled
             uiView.isSelectable = configuration.isSelectable
         }
         
         updateLayoutConfiguration: do {
-            (uiView as? UIHostingTextView<Label>)?.preferredMaximumDimensions = context.environment.preferredMaximumLayoutDimensions
+            (uiView as? _CocoaTextView<Label>)?.preferredMaximumDimensions = context.environment.preferredMaximumLayoutDimensions
         }
         
         updateTextAndGeneralConfiguration: do {
@@ -180,7 +180,9 @@ extension _TextView: UIViewRepresentable {
             
             uiView.autocapitalizationType = configuration.autocapitalization ?? .sentences
             
-            let font: UIFont = configuration.font ?? context.environment.font?.toUIFont() ?? .preferredFont(forTextStyle: .body)
+            let font = configuration.font
+                ?? (try? context.environment.font?.toAppKitOrUIKitFont())
+                ?? AppKitOrUIKitFont.preferredFont(forTextStyle: .body)
             
             if let textColor = configuration.textColor {
                 assignIfNotEqual(textColor, to: &uiView.textColor)
@@ -288,7 +290,7 @@ extension _TextView: UIViewRepresentable {
     }
     
     static func dismantleUIView(_ uiView: UITextView, coordinator: Coordinator) {
-        if let uiView = uiView as? UIHostingTextView<Label> {
+        if let uiView = uiView as? _CocoaTextView<Label> {
             uiView._isSwiftUIRuntimeDismantled = true
         }
     }
@@ -313,7 +315,7 @@ extension _TextView: UIViewRepresentable {
         }
         
         func textViewDidChange(_ textView: UITextView) {
-            if let textView = textView as? UIHostingTextView<Label>, textView._isSwiftUIRuntimeDismantled {
+            if let textView = textView as? _CocoaTextView<Label>, textView._isSwiftUIRuntimeDismantled {
                 return
             }
             
@@ -327,11 +329,17 @@ extension _TextView: UIViewRepresentable {
         func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
             if configuration.dismissKeyboardOnReturn {
                 if text == "\n" {
-                    configuration.onCommit()
-                    
-                    #if os(iOS)
-                    textView.resignFirstResponder()
-                    #endif
+                    DispatchQueue.main.async {
+                        #if os(iOS)
+                        guard textView.isFirstResponder else {
+                            return
+                        }
+                                                
+                        self.configuration.onCommit()
+                        
+                        textView.resignFirstResponder()
+                        #endif
+                    }
                     
                     return false
                 }
@@ -341,13 +349,26 @@ extension _TextView: UIViewRepresentable {
         }
         
         func textViewDidEndEditing(_ textView: UITextView) {
-            configuration.onEditingChanged(false)
-            configuration.onCommit()
+            DispatchQueue.main.async {
+                self.configuration.onEditingChanged(false)
+            }
         }
     }
     
     func makeCoordinator() -> Coordinator {
         .init(text: text, attributedText: attributedText, configuration: configuration)
+    }
+    
+    func _overrideSizeThatFits(
+        _ size: inout CGSize,
+        in proposedSize: _ProposedSize,
+        uiView: UIViewType
+    ) {
+        if let textView = (uiView as? _CocoaTextView<Label>) {
+            let proposedSize = _SwiftUIX_ProposedSize(proposedSize)
+            
+            textView.representableContext.proposedSize = proposedSize
+        }
     }
 }
 
@@ -438,7 +459,7 @@ class _NSTextView: NSTextView {
 
 #endif
 
-// MARK: - API -
+// MARK: - API
 
 extension TextView where Label == EmptyView {
     public init(
@@ -472,6 +493,19 @@ extension TextView where Label == EmptyView {
     ) {
         self.label = EmptyView()
         self.attributedText = .constant(text)
+        self.configuration = .init(
+            isConstant: true,
+            onEditingChanged: { _ in },
+            onCommit: { }
+        )
+    }
+
+    @available(macOS 12, iOS 15, tvOS 15, watchOS 8, *)
+    public init(
+        _ text: AttributedString
+    ) {
+        self.label = EmptyView()
+        self.attributedText = .constant(NSAttributedString(text))
         self.configuration = .init(
             isConstant: true,
             onEditingChanged: { _ in },
@@ -567,18 +601,23 @@ extension TextView {
     public func foregroundColor(_ foregroundColor: AppKitOrUIKitColor) -> Self {
         then({ $0.configuration.textColor = foregroundColor })
     }
-	
-	@_disfavoredOverload
-	public func tint(_ tint: AppKitOrUIKitColor) -> Self {
-		then({ $0.configuration.tintColor = tint })
-	}
+    
+    @_disfavoredOverload
+    public func tint(_ tint: AppKitOrUIKitColor) -> Self {
+        then({ $0.configuration.tintColor = tint })
+    }
     
     public func kerning(_ kerning: CGFloat) -> Self {
         then({ $0.configuration.kerning = kerning })
     }
     
+    @_disfavoredOverload
     public func textContainerInset(_ textContainerInset: AppKitOrUIKitInsets) -> Self {
         then({ $0.configuration.textContainerInset = textContainerInset })
+    }
+    
+    public func textContainerInset(_ textContainerInset: EdgeInsets) -> Self {
+        then({ $0.configuration.textContainerInset = AppKitOrUIKitInsets(textContainerInset) })
     }
     
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -620,7 +659,7 @@ extension TextView {
 
 #endif
 
-// MARK: - Auxiliary Implementation -
+// MARK: - Auxiliary
 
 extension EnvironmentValues {
     struct _ParagraphSpacing: EnvironmentKey {
@@ -645,7 +684,7 @@ extension View {
     }
 }
 
-// MARK: - Helpers -
+// MARK: - Helpers
 
 extension EnvironmentValues {
     fileprivate var requiresAttributedText: Bool {

@@ -85,9 +85,10 @@ extension View {
 
 extension View {
     /// Hides this view conditionally.
+    @_disfavoredOverload
     @inlinable
     public func hidden(_ isHidden: Bool) -> some View {
-        Group {
+        PassthroughView {
             if isHidden {
                 hidden()
             } else {

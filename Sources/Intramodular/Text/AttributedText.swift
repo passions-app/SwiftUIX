@@ -50,7 +50,7 @@ public struct AttributedText: AppKitOrUIKitViewRepresentable {
     }
 }
 
-// MARK: - API -
+// MARK: - API
 
 extension AttributedText {
     public func font(_ font: AppKitOrUIKitFont) -> Self {
@@ -69,7 +69,7 @@ extension AttributedText {
     #endif
 }
 
-// MARK: - Auxiliary Implementation -
+// MARK: - Auxiliary
 
 extension AppKitOrUIKitLabel {
     func configure(with attributedText: AttributedText) {
@@ -89,7 +89,7 @@ extension AppKitOrUIKitLabel {
         #endif
         
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        if let font = attributedText.configuration.appKitOrUIKitFont ?? attributedText.font?.toUIFont() {
+        if let font = try? attributedText.configuration.appKitOrUIKitFont ?? attributedText.font?.toAppKitOrUIKitFont() {
             let string = NSMutableAttributedString(attributedString: attributedText.content)
             
             string.addAttribute(.font, value: font, range: .init(location: 0, length: string.length))

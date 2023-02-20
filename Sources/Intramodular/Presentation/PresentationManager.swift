@@ -6,13 +6,13 @@ import Swift
 import SwiftUI
 
 /// A type that manages an active presentation.
-public protocol PresentationManager: ViewInteractor {
+public protocol PresentationManager {
     var isPresented: Bool { get }
     
     func dismiss()
 }
 
-// MARK: - API -
+// MARK: - API
 
 extension PresentationMode {
     /// A dynamic action that dismisses an active presentation.
@@ -51,7 +51,7 @@ public struct BooleanPresentationManager: PresentationManager  {
     }
 }
 
-// MARK: - Conformances -
+// MARK: - Conformances
 
 public struct AnyPresentationManager: PresentationManager {
     private let isPresentedImpl: () -> Bool
@@ -84,19 +84,15 @@ extension Binding: PresentationManager where Value == PresentationMode {
     }
 }
 
-// MARK: - Auxiliary Implementation -
+// MARK: - Auxiliary
 
-private struct _PresentationManagerEnvironmentKey: ViewInteractorEnvironmentKey {
-    typealias ViewInteractor = PresentationManager
-
-    static var defaultValue: PresentationManager? {
-        get {
+extension EnvironmentValues {
+    fileprivate struct _PresentationManagerEnvironmentKey: EnvironmentKey {
+        static var defaultValue: PresentationManager? {
             return nil
         }
     }
-}
 
-extension EnvironmentValues {
     public var presentationManager: PresentationManager {
         get {
             #if os(iOS) || os(tvOS) || os(macOS) || targetEnvironment(macCatalyst)

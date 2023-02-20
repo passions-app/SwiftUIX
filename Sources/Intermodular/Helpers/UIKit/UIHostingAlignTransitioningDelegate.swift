@@ -68,7 +68,7 @@ class UIHostingAlignTransitioningDelegate<Background: View, Content: View>: UIHo
     }
 }
 
-// MARK: - API -
+// MARK: - API
 
 extension ModalPresentationStyle {
     public static func align(
@@ -175,7 +175,7 @@ extension UIHostingAlignTransitioningDelegate {
         struct BackgroundContainer: View {
             let content: Background
             
-            weak var parent: CocoaController?
+            weak var parent: CocoaViewController?
             
             var presentationCoordinator: CocoaPresentationCoordinator?
             var transitionType: PresentationTransitionType?

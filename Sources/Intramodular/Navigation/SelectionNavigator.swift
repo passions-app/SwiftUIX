@@ -7,7 +7,7 @@ import Swift
 import SwiftUI
 
 /// A utility view modifier that allows for dynamic navigation based on some arbitrary selection value.
-fileprivate struct SelectionNavigator<Selection: Identifiable, Destination: View>: ViewModifier {
+fileprivate struct SelectionNavigator<Selection: Hashable, Destination: View>: ViewModifier {
     private let selection: Binding<Selection?>
     private let destination: (Selection) -> Destination
     private let onDismiss: (() -> Void)?
@@ -50,7 +50,7 @@ fileprivate struct SelectionNavigator<Selection: Identifiable, Destination: View
                     isActive: isActive,
                     label: { ZeroSizeView() }
                 )
-                .id(selection.id)
+                .id(selection)
                 .accessibility(hidden: true)
             }
         )
@@ -62,7 +62,7 @@ fileprivate struct SelectionNavigator<Selection: Identifiable, Destination: View
                     isActive: isActive,
                     label: { ZeroSizeView() }
                 )
-                .id(selection.id)
+                .id(selection)
                 .accessibility(hidden: true)
             }
         )
@@ -70,7 +70,7 @@ fileprivate struct SelectionNavigator<Selection: Identifiable, Destination: View
     }
 }
 
-// MARK: - API -
+// MARK: - API
 
 extension View {
     public func navigate<Destination: View>(
@@ -139,7 +139,8 @@ extension View {
 }
 
 extension View {
-    public func navigate<Selection: Identifiable, Destination: View>(
+    @_disfavoredOverload
+    public func navigate<Selection: Hashable, Destination: View>(
         selection: Binding<Selection?>,
         onDismiss: (() -> ())? = nil,
         @ViewBuilder destination: @escaping (Selection) -> Destination
@@ -150,9 +151,29 @@ extension View {
             destination: destination
         ))
     }
+
+    public func navigate<Selection: Identifiable, Destination: View>(
+        selection: Binding<Selection?>,
+        onDismiss: (() -> ())? = nil,
+        @ViewBuilder destination: @escaping (Selection) -> Destination
+    ) -> some View {
+        modifier(SelectionNavigator(
+            selection: Binding<_KeyPathHashable<Selection, Selection.ID>?>(
+                get: {
+                    selection.wrappedValue.map({ _KeyPathHashable($0, keyPath: \.id) })
+                }, set: {
+                    selection.wrappedValue = $0?.root
+                }
+            ),
+            onDismiss: onDismiss,
+            destination: {
+                destination($0.root)
+            }
+        ))
+    }
 }
 
-// MARK: - Auxiliary Implementation -
+// MARK: - Auxiliary
 
 fileprivate struct NavigateOnPress<Destination: View>: ViewModifier {
     let destination: Destination

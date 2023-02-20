@@ -7,7 +7,7 @@ import SwiftUI
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-public struct _CollectionViewConfiguration {
+public struct _CollectionViewConfiguration: ExpressibleByNilLiteral {
     public struct UnsafeFlags: OptionSet {
         public let rawValue: Int
         
@@ -50,6 +50,10 @@ public struct _CollectionViewConfiguration {
     
     var ignorePreferredCellLayoutAttributes: Bool {
         unsafeFlags.contains(.ignorePreferredCellLayoutAttributes)
+    }
+
+    public init(nilLiteral: ()) {
+
     }
 }
 
@@ -158,10 +162,10 @@ struct _CollectionViewCellOrSupplementaryViewCache<
     }
 }
 
-// MARK: - Auxiliary Implementation -
+// MARK: - Auxiliary
 
 struct _CollectionViewConfigurationEnvironmentKey: EnvironmentKey {
-    static let defaultValue = _CollectionViewConfiguration()
+    static let defaultValue: _CollectionViewConfiguration = nil
 }
 
 extension EnvironmentValues {

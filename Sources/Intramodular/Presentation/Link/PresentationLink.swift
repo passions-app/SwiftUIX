@@ -193,7 +193,10 @@ public struct PresentationLink<Destination: View, Label: View>: PresentationLink
         )
         .sheet(
             isPresented: isPresented,
-            onDismiss: _onDismiss,
+            onDismiss: {
+                isPresented.wrappedValue = false
+                _onDismiss()
+            },
             content: { presentation.content }
         )
     }
@@ -290,7 +293,7 @@ public struct PresentationLink<Destination: View, Label: View>: PresentationLink
     }
 }
 
-// MARK: - API -
+// MARK: - API
 
 extension PresentationLink {
     public init(
@@ -417,6 +420,8 @@ extension PresentationLink {
     }
 }
 
+// MARK: - Supplementary API
+
 extension View {
     /// Adds a destination to present when this view is pressed.
     public func onPress<Destination: View>(present destination: Destination) -> some View {
@@ -437,7 +442,7 @@ extension View {
     }
 }
 
-// MARK: - Auxiliary Implementation -
+// MARK: - Auxiliary
 
 struct _PresentOnPressViewModifier<Destination: View>: ViewModifier {
     @Environment(\.presenter) var presenter

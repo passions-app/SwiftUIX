@@ -11,8 +11,13 @@ extension View {
         count: Int = 1,
         perform action: @escaping () -> Void
     ) -> some View {
-        background {
-            Color.almostClear.onTapGesture(count: count, perform: action)
+        if #available(iOS 13.0, macOS 10.15, tvOS 16.0, watchOS 6.0, *) {
+            return background {
+                Color.almostClear.onTapGesture(count: count, perform: action)
+            }
+            .eraseToAnyView()
+        } else {
+            return self.eraseToAnyView()
         }
     }
 }

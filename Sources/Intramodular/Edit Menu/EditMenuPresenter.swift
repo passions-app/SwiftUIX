@@ -21,9 +21,9 @@ private struct EditMenuPresenter: ViewModifier {
                     attachmentAnchor: attachmentAnchor,
                     editMenuItems: editMenuItems
                 )
-            .allowsHitTesting(false)
-            .accessibility(hidden: true)
-        }
+                .allowsHitTesting(false)
+                .accessibility(hidden: true)
+            }
     }
     
     struct _BackgroundPresenterView: AppKitOrUIKitViewRepresentable {
@@ -48,7 +48,7 @@ private struct EditMenuPresenter: ViewModifier {
     }
 }
 
-// MARK: - API -
+// MARK: - API
 
 public struct EditMenuItem {
     let title: String
@@ -75,7 +75,7 @@ extension View {
     }
 }
 
-// MARK: - Auxiliary Implementation -
+// MARK: - Auxiliary
 
 extension EditMenuPresenter._BackgroundPresenterView {
     class AppKitOrUIKitViewType: UIView {
@@ -136,7 +136,7 @@ extension EditMenuPresenter._BackgroundPresenterView {
                     resignFirstResponder()
                 }
             }
-
+            
             UIMenuController.shared.menuItems = nil
         }
         

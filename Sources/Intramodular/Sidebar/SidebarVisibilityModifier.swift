@@ -7,7 +7,7 @@ import SwiftUI
 #if os(iOS)
 
 @available(iOS 14.0, *)
-struct SidebarVisibilityModifier: ViewModifier {
+private struct SidebarVisibilityModifier: ViewModifier {
     var isSidebarInitiallyVisible: Bool
 
     func body(content: Content) -> some View {
@@ -17,7 +17,7 @@ struct SidebarVisibilityModifier: ViewModifier {
     }
 }
 
-// MARK: - API -
+// MARK: - API
 
 public enum _SidebarVisibility {
     case automatic
@@ -89,7 +89,7 @@ extension SidebarVisibilityModifier.AppKitOrUIKitSidebarIntrospector {
                 return
             }
 
-            if let splitViewController = nearestSplitViewController {
+            if let splitViewController = _nearestSplitViewController {
                 if isSidebarInitiallyVisible && splitViewController.displayMode == .secondaryOnly {
                     UIView.performWithoutAnimation {
                         splitViewController.show(.primary)

@@ -14,7 +14,7 @@ public struct CocoaScrollView<Content: View>: UIViewRepresentable  {
     
     private let content: Content
     
-    private var configuration = CocoaScrollViewConfiguration<Content>()
+    private var configuration: CocoaScrollViewConfiguration<Content> = nil
     
     public init(
         _ axes: Axis.Set = .vertical,
@@ -60,7 +60,7 @@ public struct CocoaScrollView<Content: View>: UIViewRepresentable  {
     }
 }
 
-// MARK: - API -
+// MARK: - API
 
 extension CocoaScrollView {
     public func alwaysBounceVertical(_ alwaysBounceVertical: Bool) -> Self {
@@ -71,16 +71,11 @@ extension CocoaScrollView {
         then({ $0.configuration.alwaysBounceHorizontal = alwaysBounceHorizontal })
     }
     
-    /// Adds a condition whether for whether the collection view disables bouncing when scrolling reaches the end of the content
+    /// Adds a condition whether for whether the collection view disables bouncing when scrolling reaches the end of the content.
     public func scrollBounceDisabled(_ disabled: Bool) -> Self {
         then {
-            if $0.configuration.axes.contains(.horizontal) {
-                $0.configuration.alwaysBounceHorizontal = !disabled
-            }
-
-            if $0.configuration.axes.contains(.vertical) {
-                $0.configuration.alwaysBounceVertical = !disabled
-            }
+            $0.configuration.alwaysBounceHorizontal = !disabled
+            $0.configuration.alwaysBounceVertical = !disabled
         }
     }
     
@@ -144,13 +139,15 @@ extension CocoaScrollView {
 
 #endif
 
+// MARK: - Auxiliary
+
 struct _CocoaScrollViewPage: Equatable {
     let index: Int
     let rect: CGRect
 }
 
 extension View {
-    public func scrollPage(index: Int) -> some View {
+    private func scrollPage(index: Int) -> some View {
         background(GeometryReader { geometry in
             Color.clear.preference(
                 key: ArrayReducePreferenceKey<_CocoaScrollViewPage>.self,

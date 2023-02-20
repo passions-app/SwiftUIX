@@ -44,9 +44,19 @@ fileprivate struct AppKitOrUIKitViewControllerResolver: AppKitOrUIKitViewControl
             }
         }
         
+        override func viewWillAppear(_ animated: Bool) {
+            super.viewWillAppear(animated)
+        }
+        
         override func viewDidAppear(_ animated: Bool) {
             super.viewDidAppear(animated)
             
+            #if targetEnvironment(macCatalyst)
+            if resolvedParent == nil {
+                resolveIfNecessary(withParent: view.superview?._nearestResponder(ofKind: UIViewController.self))
+            }
+            #endif
+
             resolvedParent.map(onAppear)
         }
         
@@ -111,7 +121,7 @@ fileprivate struct AppKitOrUIKitViewControllerResolver: AppKitOrUIKitViewControl
     }
 }
 
-// MARK: - API -
+// MARK: - API
 
 extension View {
     /// Resolve the nearest `UIViewController` or `NSViewController` in the view hierarchy.
@@ -174,7 +184,7 @@ public func withAppKitOrUIKitViewController<Content: View>(
 }
 #endif
 
-// MARK: - Auxiliary Implementation -
+// MARK: - Auxiliary
 
 #if os(macOS)
 extension NSResponder {
@@ -204,7 +214,9 @@ private struct _WithAppKitOrUIKitViewController<Content: View>: View {
         content(appKitOrUIKitViewControllerBox.value)
             .onAppKitOrUIKitViewControllerResolution { viewController in
                 if viewController !== appKitOrUIKitViewControllerBox.value {
-                    appKitOrUIKitViewControllerBox.value = viewController
+                    DispatchQueue.main.async {
+                        appKitOrUIKitViewControllerBox.value = viewController
+                    }
                 }
             }
     }
@@ -238,13 +250,15 @@ private struct _ResolveAppKitOrUIKitViewController: ViewModifier {
                 return
             }
 
-            if !(_appKitOrUIKitViewControllerBox.value === viewController) {
-                _appKitOrUIKitViewControllerBox.value = viewController
-            }
+            DispatchQueue.main.async {
+                if !(_appKitOrUIKitViewControllerBox.value === viewController) {
+                    _appKitOrUIKitViewControllerBox.value = viewController
+                }
 
-            if !(presentationCoordinatorBox.value === viewController._cocoaPresentationCoordinator) {
-                presentationCoordinatorBox.value =
-                viewController.presentationCoordinator
+                if !(presentationCoordinatorBox.value === viewController._cocoaPresentationCoordinator) {
+                    presentationCoordinatorBox.value =
+                    viewController.presentationCoordinator
+                }
             }
         }
         .background {

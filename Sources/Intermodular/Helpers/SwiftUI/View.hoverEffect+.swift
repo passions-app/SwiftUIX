@@ -3,7 +3,7 @@
 //
 
 @available(iOS 13, *)
-@available(tvOS, unavailable)
+@available(tvOS 16.0, *)
 @available(watchOS, unavailable)
 @available(OSX, unavailable)
 public struct _HoverEffectViewModifier: ViewModifier {
@@ -23,7 +23,7 @@ public struct _HoverEffectViewModifier: ViewModifier {
 }
 
 @available(iOS 13, *)
-@available(tvOS, unavailable)
+@available(tvOS 16.0, *)
 @available(watchOS, unavailable)
 @available(OSX, unavailable)
 extension View {

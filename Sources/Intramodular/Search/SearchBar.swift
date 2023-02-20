@@ -116,7 +116,7 @@ extension SearchBar: UIViewRepresentable {
             uiView.searchTextField.autocorrectionType = environment.disableAutocorrection.map({ $0 ? .no : .yes }) ?? .default
             
             if (appKitOrUIKitFont != nil || environment.font != nil) || appKitOrUIKitForegroundColor != nil || appKitOrUIKitSearchFieldBackgroundColor != nil {
-                if let font = appKitOrUIKitFont ?? environment.font?.toUIFont() {
+                if let font = try? appKitOrUIKitFont ?? environment.font?.toAppKitOrUIKitFont() {
                     uiView.searchTextField.font = font
                 }
                 
@@ -327,7 +327,7 @@ extension SearchBar: NSViewRepresentable {
 
 #endif
 
-// MARK: - API -
+// MARK: - API
 
 @available(macCatalystApplicationExtension, unavailable)
 @available(iOSApplicationExtension, unavailable)
@@ -450,7 +450,7 @@ extension SearchBar {
     #endif
 }
 
-// MARK: - Auxiliary Implementation -
+// MARK: - Auxiliary
 
 #if os(iOS) || targetEnvironment(macCatalyst)
 private final class _UISearchBar: UISearchBar {

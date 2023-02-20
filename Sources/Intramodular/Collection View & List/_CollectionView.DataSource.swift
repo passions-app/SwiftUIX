@@ -146,7 +146,7 @@ extension _CollectionView.DataSource.Payload: CustomStringConvertible {
     }
 }
 
-extension UIHostingCollectionViewController {
+extension CocoaHostingCollectionViewController {
     func updateDataSource(
         oldValue: DataSource.Payload?,
         newValue: DataSource.Payload?
@@ -275,7 +275,7 @@ extension UIHostingCollectionViewController {
     }
 }
 
-// MARK: - Auxiliary Implementation -
+// MARK: - Auxiliary
 
 fileprivate extension NSDiffableDataSourceSnapshot {
     mutating func deleteAllItemsIfNecessary() {

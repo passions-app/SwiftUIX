@@ -13,7 +13,7 @@ public protocol DynamicAction: DynamicProperty {
     func perform()
 }
 
-// MARK: - API -
+// MARK: - API
 
 extension DynamicAction {
     public func then(_ action: @escaping () -> Void) -> _ExtendedDynamicAction<Self> {
@@ -25,12 +25,8 @@ extension PerformActionView {
     public func insertAction<A: DynamicAction>(_ action: A) -> _InsertDynamicAction<Self, A> {
         .init(base: self, action: action)
     }
-
+    
     public func appendAction<A: DynamicAction>(_ action: A) -> _AppendDynamicAction<Self, A> {
-        .init(base: self, action: action)
-    }
-
-    public func addAction<A: DynamicAction>(_ action: A) -> _AddDynamicAction<Self, A> {
         .init(base: self, action: action)
     }
 }
@@ -38,12 +34,12 @@ extension PerformActionView {
 public struct WithDynamicAction<Action: DynamicAction, Content: View>: View {
     public let action: Action
     public let content: (Action) -> Content
-
+    
     public init(_ action: Action, _ content: @escaping (Action) -> Content) {
         self.action = action
         self.content = content
     }
-
+    
     public var body: some View {
         content(action)
     }
@@ -52,7 +48,7 @@ public struct WithDynamicAction<Action: DynamicAction, Content: View>: View {
 public struct DynamicActionButton<Action: DynamicAction, Label: View>: View {
     public let action: Action
     public let label: Label
-
+    
     public init(
         action: Action,
         @ViewBuilder label: () -> Label
@@ -60,7 +56,7 @@ public struct DynamicActionButton<Action: DynamicAction, Label: View>: View {
         self.action = action
         self.label = label()
     }
-
+    
     public var body: some View {
         Button(action: action.perform) {
             label
@@ -71,7 +67,7 @@ public struct DynamicActionButton<Action: DynamicAction, Label: View>: View {
 extension View {
     /// Adds an action to perform when this view recognizes a tap gesture.
     @available(iOS 13.0, macOS 10.15, watchOS 6.0, *)
-    @available(tvOS, unavailable)
+    @available(tvOS 16.0, *)
     public func onTapGesture<A: DynamicAction>(perform action: A) -> some View {
         modifier(_AddDynamicActionOnTapGesture(action: action))
     }
@@ -88,7 +84,7 @@ extension View {
         }
         .buttonStyle(PlainButtonStyle())
     }
-
+    
     /// Adds an action to perform when this view is pressed.
     ///
     /// - Parameters:
@@ -98,7 +94,7 @@ extension View {
     }
 }
 
-// MARK: - Auxiliary Implementation -
+// MARK: - Auxiliary
 
 public struct _ExtendedDynamicAction<A: DynamicAction>: DynamicAction {
     let action: A
@@ -111,11 +107,11 @@ public struct _ExtendedDynamicAction<A: DynamicAction>: DynamicAction {
     }
 }
 
-@available(iOS 13.0, macOS 10.15, watchOS 6.0, *)
-@available(tvOS, unavailable)
+@available(iOS 13.0, macOS 10.15, tvOS 16.0, watchOS 6.0, *)
+@available(tvOS 16.0, *)
 struct _AddDynamicActionOnTapGesture<Action: DynamicAction>: ViewModifier {
     let action: Action
-
+    
     func body(content: Content) -> some View {
         content.onTapGesture {
             action.perform()
@@ -126,7 +122,7 @@ struct _AddDynamicActionOnTapGesture<Action: DynamicAction>: ViewModifier {
 public struct _InsertDynamicAction<Base: PerformActionView, Action: DynamicAction>: View {
     let base: Base
     let action: Action
-
+    
     public var body: some View {
         base.transformAction({ $0.insert(action.perform) })
     }
@@ -135,17 +131,8 @@ public struct _InsertDynamicAction<Base: PerformActionView, Action: DynamicActio
 public struct _AppendDynamicAction<Base: PerformActionView, Action: DynamicAction>: View {
     let base: Base
     let action: Action
-
+    
     public var body: some View {
         base.transformAction({ $0.insert(action.perform) })
-    }
-}
-
-public struct _AddDynamicAction<Base: PerformActionView, Action: DynamicAction>: View {
-    let base: Base
-    let action: Action
-
-    public var body: some View {
-        base.addAction(action)
     }
 }

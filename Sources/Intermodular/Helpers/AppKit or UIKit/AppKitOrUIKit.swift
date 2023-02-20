@@ -15,6 +15,8 @@ public typealias AppKitOrUIKitApplicationDelegate = UIApplicationDelegate
 public typealias AppKitOrUIKitApplicationDelegateAdapter = UIApplicationDelegateAdaptor
 public typealias AppKitOrUIKitBezierPath = UIBezierPath
 public typealias AppKitOrUIKitButton = UIButton
+public typealias AppKitOrUIKitCollectionView = UICollectionView
+public typealias AppKitOrUIKitCollectionViewFlowLayout = UICollectionViewFlowLayout
 public typealias AppKitOrUIKitColor = UIColor
 public typealias AppKitOrUIKitControl = UIControl
 public typealias AppKitOrUIKitControlEvent = UIControl.Event
@@ -29,6 +31,10 @@ public typealias AppKitOrUIKitLabel = UILabel
 public typealias AppKitOrUIKitLayoutAxis = NSLayoutConstraint.Axis
 public typealias AppKitOrUIKitLayoutGuide = UILayoutGuide
 public typealias AppKitOrUIKitLayoutPriority = UILayoutPriority
+#if os(iOS)
+public typealias AppKitOrUIKitPasteboard = UIPasteboard
+#endif
+public typealias AppKitOrUIKitRectCorner = UIRectCorner
 public typealias AppKitOrUIKitResponder = UIResponder
 public typealias AppKitOrUIKitScrollView = UIScrollView
 public typealias AppKitOrUIKitSearchBar = UISearchBar
@@ -71,8 +77,12 @@ public typealias AppKitOrUIKitApplicationDelegate = NSApplicationDelegate
 public typealias AppKitOrUIKitApplicationDelegateAdapter = NSApplicationDelegateAdaptor
 public typealias AppKitOrUIKitBezierPath = NSBezierPath
 public typealias AppKitOrUIKitButton = NSButton
+public typealias AppKitOrUIKitCollectionView = NSCollectionView
+@available(macOS 11, *)
+public typealias AppKitOrUIKitCollectionViewFlowLayout = NSCollectionViewFlowLayout
 public typealias AppKitOrUIKitColor = NSColor
 public typealias AppKitOrUIKitControl = NSControl
+public typealias AppKitOrUIKitEdgeInsets = NSEdgeInsets
 public typealias AppKitOrUIKitEvent = NSEvent
 public typealias AppKitOrUIKitFont = NSFont
 public typealias AppKitOrUIKitHostingController<Content: View> = NSHostingController<Content>
@@ -83,6 +93,8 @@ public typealias AppKitOrUIKitLabel = NSLabel
 public typealias AppKitOrUIKitLayoutAxis = NSUserInterfaceLayoutOrientation
 public typealias AppKitOrUIKitLayoutGuide = NSLayoutGuide
 public typealias AppKitOrUIKitLayoutPriority = NSLayoutConstraint.Priority
+public typealias AppKitOrUIKitPasteboard = NSPasteboard
+public typealias AppKitOrUIKitRectCorner = NSRectCorner
 public typealias AppKitOrUIKitResponder = NSResponder
 public typealias AppKitOrUIKitSearchBar = NSSearchField
 public typealias AppKitOrUIKitTableView = NSTableView
@@ -90,6 +102,43 @@ public typealias AppKitOrUIKitTextView = NSTextView
 public typealias AppKitOrUIKitView = NSView
 public typealias AppKitOrUIKitViewController = NSViewController
 public typealias AppKitOrUIKitWindow = NSWindow
+
+extension NSEdgeInsets {
+    var edgeInsets: EdgeInsets {
+        .init(top: top, leading: left, bottom: bottom, trailing: right)
+    }
+}
+
+extension NSFont {
+    @available(macOS 11.0, *)
+    public static func preferredFont(forTextStyle textStyle: TextStyle) -> NSFont {
+        .preferredFont(forTextStyle: textStyle, options: [:])
+    }
+}
+
+public struct NSRectCorner: OptionSet {
+    public static let allCorners: Self = [.topLeft, .topRight, .bottomLeft, .bottomRight]
+    
+    public static let topLeft: Self = Self(rawValue: 1 << 0)
+    public static let topRight: Self = Self(rawValue: 1 << 1)
+    public static let bottomLeft: Self = Self(rawValue: 1 << 2)
+    public static let bottomRight: Self = Self(rawValue: 1 << 3)
+    
+    public let rawValue: Int
+    
+    public init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
+}
+
+extension NSSize {
+    public init(_ edgeInsets: EdgeInsets) {
+        self.init(
+            width: edgeInsets.leading + edgeInsets.trailing,
+            height: edgeInsets.top + edgeInsets.bottom
+        )
+    }
+}
 
 extension NSView {
     public static var layoutFittingCompressedSize: CGSize {
@@ -165,7 +214,7 @@ extension EnvironmentValues {
             _appKitOrUIKitViewControllerBox?.value
         }
     }
-
+    
     var _appKitOrUIKitViewControllerBox: ObservableWeakReferenceBox<AppKitOrUIKitViewController>? {
         get {
             self[DefaultEnvironmentKey<ObservableWeakReferenceBox<AppKitOrUIKitViewController>>.self]

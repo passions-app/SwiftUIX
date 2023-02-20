@@ -7,7 +7,11 @@
 import Swift
 import SwiftUI
 
-extension UIHostingCollectionViewController: _CollectionViewProxyBase {
+extension CocoaHostingCollectionViewController: _CollectionViewProxyBase {
+    var appKitOrUIKitCollectionView: AppKitOrUIKitCollectionView {
+        collectionView
+    }
+    
     var collectionViewContentSize: CGSize {
         collectionView.contentSize.isAreaZero
             ? collectionView.contentSize
@@ -246,7 +250,7 @@ extension UIHostingCollectionViewController: _CollectionViewProxyBase {
     }
 }
 
-// MARK: - Auxiliary Implementation -
+// MARK: - Auxiliary
 
 fileprivate extension UICollectionView {
     func contains(_ indexPath: IndexPath) -> Bool {

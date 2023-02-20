@@ -50,7 +50,7 @@ open class UIHostingScrollView<Content: View>: UIScrollView, _opaque_UIHostingSc
         }
     }
     
-    public var configuration = CocoaScrollViewConfiguration<Content>() {
+    public var configuration: CocoaScrollViewConfiguration<Content> = nil {
         didSet {
             configure(with: configuration)
         }
@@ -253,7 +253,7 @@ open class UIHostingScrollView<Content: View>: UIScrollView, _opaque_UIHostingSc
     }
 }
 
-// MARK: - Auxiliary Implementation -
+// MARK: - Auxiliary
 
 extension UIHostingScrollView {
     struct RootViewContainer: View {
@@ -276,7 +276,7 @@ extension UIHostingScrollView {
     }
 }
 
-// MARK: - Conformances -
+// MARK: - Conformances
 
 extension UIHostingScrollView {
 

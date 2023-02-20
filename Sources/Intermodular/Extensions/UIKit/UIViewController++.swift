@@ -8,7 +8,7 @@ import Swift
 import UIKit
 
 extension UIViewController {
-    open var root: UIViewController? {
+    public var root: UIViewController? {
         var parent = self.parent
         
         while let _parent = parent?.parent {
@@ -20,18 +20,18 @@ extension UIViewController {
 }
 
 extension UIViewController {
-    open var topmostNavigationController: UINavigationController? {
+    public var topmostNavigationController: UINavigationController? {
         topmostViewController?.nearestNavigationController ?? nearestNavigationController
     }
     
     override open var nearestNavigationController: UINavigationController? {
         navigationController
-            ?? nearestChild(ofKind: UINavigationController.self)
-            ?? nearestResponder(ofKind: UINavigationController.self)
+            ?? _nearestChild(ofKind: UINavigationController.self)
+            ?? _nearestResponder(ofKind: UINavigationController.self)
     }
 
-    var nearestSplitViewController: UISplitViewController? {
-        splitViewController ?? nearestNavigationController?.splitViewController ?? nearestResponder(ofKind: UISplitViewController.self)
+    var _nearestSplitViewController: UISplitViewController? {
+        splitViewController ?? nearestNavigationController?.splitViewController ?? _nearestResponder(ofKind: UISplitViewController.self)
     }
 }
 
@@ -52,7 +52,18 @@ extension UIViewController {
         }
     }
     
-    func _nearestChild<T: UIViewController>(
+    public func _nearestChild<T: UIViewController>(
+        ofKind kind: T.Type,
+        maximumDepth: Int? = nil
+    ) -> T? {
+        _nearestChild(ofKind: kind, currentDepth: nil, maximumDepth: maximumDepth)
+    }
+    
+    public func _SwiftUIX_findSubview<T: UIView>(ofKind kind: T.Type) -> T? {
+        view._SwiftUIX_findSubview(ofKind: kind) ?? _decomposeChildViewControllers().lazy.compactMap({ $0.view._SwiftUIX_findSubview(ofKind: kind) }).first
+    }
+    
+    private func _nearestChild<T: UIViewController>(
         ofKind kind: T.Type,
         currentDepth: Int?,
         maximumDepth: Int?
@@ -111,24 +122,17 @@ extension UIViewController {
         
         return nil
     }
-    
-    func nearestChild<T: UIViewController>(
-        ofKind kind: T.Type,
-        maximumDepth: Int? = nil
-    ) -> T? {
-        _nearestChild(ofKind: kind, currentDepth: nil, maximumDepth: maximumDepth)
-    }
 }
 
 extension UIViewController {
-    func add(_ child: UIViewController) {
+    public func _SwiftUIX_addChild(_ child: UIViewController) {
         child.willMove(toParent: self)
         addChild(child)
         view.addSubview(child.view)
         child.didMove(toParent: self)
     }
     
-    func remove() {
+    public func _SwiftUIX_asChildRemoveFromParent() {
         guard parent != nil else {
             return
         }

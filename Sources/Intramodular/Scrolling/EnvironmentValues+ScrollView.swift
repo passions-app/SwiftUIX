@@ -33,20 +33,36 @@ extension EnvironmentValues {
     }
     #endif
     
-    private struct IsScrollEnabledEnvironmentKey: EnvironmentKey {
+    private struct _IsScrollEnabledEnvironmentKey: EnvironmentKey {
         static let defaultValue = true
     }
     
-    public var isScrollEnabled: Bool {
+    public var _SwiftUIX_isScrollEnabled: Bool {
         get {
-            self[IsScrollEnabledEnvironmentKey.self]
+            self[_IsScrollEnabledEnvironmentKey.self]
         } set {
-            self[IsScrollEnabledEnvironmentKey.self] = newValue
+            self[_IsScrollEnabledEnvironmentKey.self] = newValue
+        }
+    }
+    
+    public var _isScrollEnabled: Bool {
+        get {
+            if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
+                return isScrollEnabled
+            } else {
+                return _SwiftUIX_isScrollEnabled
+            }
+        } set {
+            if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
+                isScrollEnabled = newValue
+            } else {
+                _SwiftUIX_isScrollEnabled = newValue
+            }
         }
     }
 }
 
-// MARK: - API -
+// MARK: - API
 
 extension View {
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -62,12 +78,20 @@ extension View {
     #endif
     
     /// Adds a condition that controls whether users can scroll within this view.
+    @_disfavoredOverload
+    @ViewBuilder
     public func scrollDisabled(_ disabled: Bool) -> some View {
-        environment(\.isScrollEnabled, !disabled)
+        if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
+            self
+                .environment(\.isScrollEnabled, !disabled)
+                .environment(\._SwiftUIX_isScrollEnabled, !disabled)
+        } else {
+            environment(\._SwiftUIX_isScrollEnabled, !disabled)
+        }
     }
     
     @available(*, message: "isScrollEnabled(_:) is deprecated, use scrollDisabled(_:) instead")
     public func isScrollEnabled(_ isEnabled: Bool) -> some View {
-        environment(\.isScrollEnabled, isEnabled)
+        environment(\._SwiftUIX_isScrollEnabled, isEnabled)
     }
 }

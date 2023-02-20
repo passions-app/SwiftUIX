@@ -17,7 +17,7 @@ struct _CollectionView<
     SectionFooter: View,
     RowContent: View
 >: UIViewControllerRepresentable {
-    typealias UIViewControllerType = UIHostingCollectionViewController<
+    typealias UIViewControllerType = CocoaHostingCollectionViewController<
         SectionType,
         SectionIdentifierType,
         ItemType,
@@ -45,7 +45,7 @@ struct _CollectionView<
     public func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
         uiViewController.latestRepresentableUpdate = _AppKitOrUIKitViewRepresentableUpdate()
         
-        populateCollectionViewProxy: do {
+        func updateCollectionViewProxy() {
             if let _collectionViewProxy = context.environment._collectionViewProxy {
                 if _collectionViewProxy.wrappedValue.base !== uiViewController {
                     DispatchQueue.main.async {
@@ -54,8 +54,8 @@ struct _CollectionView<
                 }
             }
         }
-        
-        updateCollectionViewLayout: do {
+
+        func updateCollectionViewLayout() {
             let collectionViewLayout = _CollectionViewLayout(
                 collectionViewController: uiViewController,
                 base: context.environment.collectionViewLayout
@@ -65,6 +65,9 @@ struct _CollectionView<
                 uiViewController.collectionViewLayout = collectionViewLayout
             }
         }
+        
+        updateCollectionViewProxy()
+        updateCollectionViewLayout()
         
         uiViewController._animateDataSourceDifferences = context.transaction.isAnimated
         uiViewController._dynamicViewContentTraitValues = context.environment._dynamicViewContentTraitValues
@@ -87,7 +90,14 @@ struct _CollectionView<
         
         context.coordinator.dataSourceUpdateToken = context.environment._collectionViewConfiguration.dataSourceUpdateToken
     }
-    
+
+    static func dismantleUIViewController(
+        _ viewController: UIViewControllerType,
+        coordinator: Coordinator
+    ) {
+
+    }
+
     class Coordinator {
         var dataSourceUpdateToken: AnyHashable?
     }
@@ -97,7 +107,7 @@ struct _CollectionView<
     }
 }
 
-// MARK: - Initializers -
+// MARK: - Initializers
 
 extension _CollectionView {
     @_disfavoredOverload
@@ -182,7 +192,7 @@ extension _CollectionView {
     }
 }
 
-// MARK: - Auxiliary Implementation -
+// MARK: - Auxiliary
 
 extension _CollectionView {
     struct ViewProvider {

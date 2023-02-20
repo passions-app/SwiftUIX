@@ -8,16 +8,16 @@ import Swift
 import SwiftUI
 import UIKit
 
-extension UIHostingCollectionViewController {
+extension CocoaHostingCollectionViewController {
     #if !os(tvOS)
     class DragAndDropDelegate: NSObject, UICollectionViewDragDelegate, UICollectionViewDropDelegate {
-        unowned let parent: UIHostingCollectionViewController
+        unowned let parent: CocoaHostingCollectionViewController
         
-        init(parent: UIHostingCollectionViewController) {
+        init(parent: CocoaHostingCollectionViewController) {
             self.parent = parent
         }
         
-        // MARK: - UICollectionViewDragDelegate -
+        // MARK: - UICollectionViewDragDelegate
         
         func collectionView(
             _ collectionView: UICollectionView,
@@ -50,7 +50,7 @@ extension UIHostingCollectionViewController {
             true
         }
         
-        // MARK: - UICollectionViewDropDelegate -
+        // MARK: - UICollectionViewDropDelegate
         
         @objc
         func collectionView(

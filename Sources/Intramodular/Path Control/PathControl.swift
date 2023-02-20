@@ -2,10 +2,11 @@
 // Copyright (c) Vatsal Manot
 //
 
+#if os(macOS)
+
+import Combine
 import Swift
 import SwiftUI
-
-#if os(macOS)
 
 /// A display of a file system path or virtual path information.
 public struct PathControl<Label> {
@@ -92,7 +93,7 @@ extension PathControl: NSViewRepresentable {
     }
 }
 
-// MARK: - API -
+// MARK: - API
 
 extension PathControl {
     /// Adds an action to perform when this view recognizes a double-tap gesture.
@@ -108,7 +109,7 @@ extension View {
     }
 }
 
-// MARK: - Auxiliary Implementation -
+// MARK: - Auxiliary
 
 public protocol PathControlStyle {
     
@@ -137,7 +138,7 @@ extension EnvironmentValues {
     }
 }
 
-// MARK: - Helpers -
+// MARK: - Helpers
 
 fileprivate extension Binding where Value == String? {
     func toFileURL() -> Binding<URL?> {

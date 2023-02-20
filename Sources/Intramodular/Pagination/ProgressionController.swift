@@ -5,20 +5,20 @@
 import Swift
 import SwiftUI
 
-public protocol ProgressionController: ViewInteractor {
+public protocol ProgressionController {
     func scrollTo(_ id: AnyHashable)
-
+    
     func moveToNext()
     func moveToPrevious()
 }
 
-// MARK: - Auxiliary Implementation -
-
-public struct ProgressionControllerEnvironmentKey: ViewInteractorEnvironmentKey {
-    public typealias ViewInteractor = ProgressionController
-}
+// MARK: - Auxiliary
 
 extension EnvironmentValues {
+    struct ProgressionControllerEnvironmentKey: EnvironmentKey {
+        static let defaultValue: ProgressionController? = nil
+    }
+    
     public var progressionController: ProgressionController? {
         get {
             self[ProgressionControllerEnvironmentKey.self]
@@ -28,7 +28,7 @@ extension EnvironmentValues {
     }
 }
 
-// MARK: - API -
+// MARK: - API
 
 /// A button that triggers a regression.
 public struct PreviousButton<Label: View>: ActionLabelView, PerformActionView {

@@ -128,7 +128,7 @@ public struct PaginationView<Page: View>: View {
     }
 }
 
-// MARK: - Initializers -
+// MARK: - Initializers
 
 extension PaginationView {
     @inlinable
@@ -428,7 +428,7 @@ extension PaginationView {
     }
 }
 
-// MARK: - API -
+// MARK: - API
 
 extension PaginationView {
     @inlinable

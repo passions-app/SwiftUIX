@@ -59,7 +59,6 @@ public struct PaginationViewReader<Content: View>: View {
     
     @State private var _paginationViewProxy = PaginationViewProxy()
     
-    
     public init(
         @ViewBuilder content: @escaping (PaginationViewProxy) -> Content
     ) {
@@ -73,7 +72,7 @@ public struct PaginationViewReader<Content: View>: View {
     }
 }
 
-// MARK: - Auxiliary Implementation -
+// MARK: - Auxiliary
 
 extension PaginationViewProxy {
     fileprivate struct EnvironmentKey: SwiftUI.EnvironmentKey {
