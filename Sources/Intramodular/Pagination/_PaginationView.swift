@@ -153,7 +153,7 @@ extension _PaginationView: UIViewControllerRepresentable {
             
             clampPageIndexIfNecessary: do {
                 if let oldContentDataEndIndex = oldContentDataEndIndex {
-                    if content.data.endIndex < oldContentDataEndIndex, !(content.data.index(content.data.startIndex, offsetBy: currentPageIndex) < content.data.endIndex) {
+                    if (content.data.endIndex < oldContentDataEndIndex, !(content.data.index(content.data.startIndex, offsetBy: currentPageIndex) < content.data.endIndex)) || currentPageIndex > oldContentDataEndIndex {
                         currentPageIndex = max(content.data.count - 1, 0)
                         
                         DispatchQueue.main.async {
