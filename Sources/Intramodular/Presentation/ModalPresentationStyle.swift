@@ -22,7 +22,7 @@ public enum ModalPresentationStyle: Equatable {
     case blurOverFullScreen
     #endif
     
-    #if os(iOS) || targetEnvironment(macCatalyst)
+    #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     case popover(
         permittedArrowDirections: PopoverArrowDirection = .all,
         attachmentAnchor: PopoverAttachmentAnchor = .rect(.bounds)
@@ -36,6 +36,12 @@ public enum ModalPresentationStyle: Equatable {
     case custom(UIViewControllerTransitioningDelegate)
     #endif
         
+    #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+    public static var popover: Self {
+        .popover(permittedArrowDirections: .all, attachmentAnchor: .rect(.bounds))
+    }
+    #endif
+    
     public static func == (lhs: ModalPresentationStyle, rhs: ModalPresentationStyle) -> Bool {
         switch (lhs, rhs) {
             case (.fullScreen, .fullScreen):
@@ -90,7 +96,7 @@ extension ModalPresentationStyle {
     }
     
     public static func == (lhs: Self, rhs: _Comparison) -> Bool {
-        #if os(iOS) || targetEnvironment(macCatalyst)
+        #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
         switch (lhs, rhs) {
             case (.popover, .popover):
                 return true
