@@ -16,6 +16,7 @@ public struct PaginationState: Hashable {
     
     public var activePageTransitionDirection: TransitionDirection?
     public var activePageTransitionProgress: Double = 0.0
+    public var isDragging: Bool = false
     
     public init() {
         

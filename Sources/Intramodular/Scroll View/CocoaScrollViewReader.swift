@@ -4,6 +4,7 @@
 
 import Swift
 import SwiftUI
+import CoreGraphics
 
 #if (os(iOS) && canImport(CoreTelephony)) || os(tvOS) || targetEnvironment(macCatalyst)
 
@@ -36,7 +37,11 @@ public struct CocoaScrollViewProxy: Hashable {
     public func scrollTo(_ edge: Edge) {
         base?.scrollTo(edge)
     }
-    
+
+    public func scrollTo(_ contentOffset: CGPoint, animated: Bool) {
+        base?.scrollTo(contentOffset, animated: animated)
+    }
+
     public func hash(into hasher: inout Hasher) {
         hasher.combine(base?.hashValue)
     }
